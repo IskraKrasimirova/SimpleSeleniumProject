@@ -1,10 +1,5 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SeleniumTestProject.Tests
 {
@@ -71,6 +66,25 @@ namespace SeleniumTestProject.Tests
             var manageUsersLink = _driver.FindElement(By.LinkText("Manage Users"));
 
             Assert.IsTrue(manageUsersLink.Displayed, "Manage Users link is not displayed.");
+        }
+
+        [Test]
+        public void SuccsessfulLoginTestReducedCode()
+        {
+            // Find the Login link and click it
+            _driver.FindElement(By.Id("loginLink")).Click();
+
+            // Find the UserName textbox and enter valid username
+            _driver.FindElement(By.Name("UserName")).SendKeys("admin"); 
+
+            // Find the Password textbox and enter valid password
+            _driver.FindElement(By.Id("Password")).SendKeys("password");
+
+            // Find the Login button and click it
+            _driver.FindElement(By.Id("loginIn")).Click();
+
+            // Verify that the user is logged in by checking for the presence of the greeting message
+            Assert.IsTrue(_driver.PageSource.Contains("Hello admin!"), "Login failed or user not recognized.");
         }
     }
 }
