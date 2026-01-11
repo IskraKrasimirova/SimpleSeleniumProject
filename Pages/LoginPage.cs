@@ -18,6 +18,9 @@ namespace SeleniumTestProject.Pages
         public IWebElement LoginButton => _driver.FindElement(By.Id("loginIn"));
         public IWebElement ErrorMessage => _driver.FindElement(By.ClassName("validation-summary-errors"));
 
+        public IWebElement UsernameValidation => _driver.FindElement(By.CssSelector("span[data-valmsg-for='UserName']"));
+
+        public IWebElement PasswordValidation => _driver.FindElement(By.CssSelector("span[data-valmsg-for='Password']"));
 
         public void NavigateToLoginPage()
         {

@@ -10,7 +10,8 @@ namespace SeleniumTestProject.Pages
         {
             _driver = driver;
         }
-        public IWebElement Greeting => _driver.FindElement(By.LinkText("Hello admin!"));
+
+        public IWebElement Greeting => _driver.FindElement(By.CssSelector("a[title='Manage']"));
 
         public IWebElement LogOffLink => _driver.FindElement(By.LinkText("Log off"));
 
@@ -19,9 +20,32 @@ namespace SeleniumTestProject.Pages
         public IWebElement ManageUsersLink => _driver.FindElement(By.LinkText("Manage Users"));
 
         public bool IsWelcomeMessageDisplayed() => Greeting.Displayed;
+
         public bool IsLogOffLinkDisplayed() => LogOffLink.Displayed;
-        public bool IsEmployeeDetailsLinkDisplayed() => EmployeeDetailsLink.Displayed;
-        public bool IsManageUsersLinkDisplayed() => ManageUsersLink.Displayed;
+
+        public bool IsEmployeeDetailsLinkDisplayed()
+        {
+            try
+            {
+                return EmployeeDetailsLink.Displayed;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
+
+        public bool IsManageUsersLinkDisplayed()
+        {
+            try
+            {
+                return ManageUsersLink.Displayed;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
 
         public bool IsLoggedInAs(string username)
         {
