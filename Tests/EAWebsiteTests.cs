@@ -14,6 +14,7 @@ namespace SeleniumTestProject.Tests
         {
             _driver = new ChromeDriver();
             _driver.Navigate().GoToUrl("http://eaapp.somee.com/");
+            _driver.Manage().Window.Maximize();
         }
 
         [TearDown]
