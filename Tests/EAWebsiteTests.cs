@@ -1,5 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using SeleniumTestProject.Actions;
+using SeleniumTestProject.Pages;
 
 namespace SeleniumTestProject.Tests
 {
@@ -82,6 +84,41 @@ namespace SeleniumTestProject.Tests
 
             // Find the Login button and click it
             _driver.FindElement(By.Id("loginIn")).Click();
+
+            // Verify that the user is logged in by checking for the presence of the greeting message
+            Assert.IsTrue(_driver.PageSource.Contains("Hello admin!"), "Login failed or user not recognized.");
+        }
+
+        [Test]
+        public void SuccsessfulLoginTestWithCustomMethods()
+        {
+            // Find the Login link and click it
+            CustomMethods.Click(_driver, By.Id("loginLink"));
+
+            // Find the UserName textbox and enter valid username
+            CustomMethods.EnterText(_driver, By.Name("UserName"), "admin");
+
+            // Find the Password textbox and enter valid password
+            CustomMethods.EnterText(_driver, By.Id("Password"), "password");
+
+            // Find the Login button and click it
+            CustomMethods.Click(_driver, By.Id("loginIn"));
+
+            // Verify that the user is logged in by checking for the presence of the greeting message
+            Assert.IsTrue(_driver.PageSource.Contains("Hello admin!"), "Login failed or user not recognized.");
+        }
+
+        [Test]
+        public void SuccsessfulLoginTestWithPOM()
+        {
+            // Instantiate the LoginPage object
+            var loginPage = new LoginPage(_driver);
+
+            // Navigate to the login page
+            loginPage.NavigateToLoginPage();
+
+            // Perform login using the UserLogin method
+            loginPage.UserLogin("admin", "password");
 
             // Verify that the user is logged in by checking for the presence of the greeting message
             Assert.IsTrue(_driver.PageSource.Contains("Hello admin!"), "Login failed or user not recognized.");
