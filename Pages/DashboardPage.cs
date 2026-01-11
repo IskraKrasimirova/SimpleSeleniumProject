@@ -19,7 +19,17 @@ namespace SeleniumTestProject.Pages
 
         public IWebElement ManageUsersLink => _driver.FindElement(By.LinkText("Manage Users"));
 
-        public bool IsWelcomeMessageDisplayed() => Greeting.Displayed;
+        public bool IsWelcomeMessageDisplayed()
+        {
+            try
+            {
+                return Greeting.Displayed;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
 
         public bool IsLogOffLinkDisplayed() => LogOffLink.Displayed;
 
