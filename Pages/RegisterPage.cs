@@ -35,17 +35,17 @@ namespace SeleniumTestProject.Pages
             RegisterButton.ClickElement();
         }
 
-        public string GetErrorMessage()
+        public List<string> GetErrorMessages()
         {
-            try
-            {
-                return _driver.FindElement(By.CssSelector(".text-danger")).Text;
-            }
-            catch
-            {
-                return null;
-            }
-        }
+            var errors = new List<string>();
+            var errorElements = _driver.FindElements(By.CssSelector(".validation-summary-errors li"));
 
+            foreach (var element in errorElements)
+            {
+                errors.Add(element.Text);
+            }
+
+            return errors;
+        }
     }
 }
