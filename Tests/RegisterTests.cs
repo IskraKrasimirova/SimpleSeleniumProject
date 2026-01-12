@@ -48,26 +48,7 @@ namespace SeleniumTestProject.Tests
         [TestCaseSource(nameof(NotValidRegistrationData))]
         public void RegisterUserWithNotValidCredentials_ShouldShowErrorMessages(string testedCase, RegisterModel registerModel, List<string> errorMessages)
         {
-            RegisterPage registerPage = new RegisterPage(_driver);
-            registerPage.NavigateToRegisterPage();
-            registerPage.FillRegistrationForm(registerModel);
-
-            var actualErrors = registerPage.GetErrorMessages();
-
-            Console.WriteLine($"Running case: {testedCase}");
-            Console.WriteLine("Actual errors:");
-            foreach (var error in actualErrors)
-            {
-                Console.WriteLine($" - {error}");
-            }
-
-            Assert.Multiple(() => 
-            {
-                foreach (var expectedError in errorMessages)
-                {
-                    Assert.IsTrue(actualErrors.Contains(expectedError), $"Expected error message '{expectedError}' was not found.");
-                }
-            });
+            ExecuteNegativeRegistrationTest(testedCase, registerModel, errorMessages);
         }
 
         private static IEnumerable<TestCaseData> NotValidRegistrationData()
@@ -103,12 +84,12 @@ namespace SeleniumTestProject.Tests
                 new List<string> { "The Password must be at least 6 characters long." }
             );
             yield return new TestCaseData(
-                "Password without digits",
+                "Password without digits", // Not stable test!
                 new RegisterModel("TestUser", "Password", "a@a.com"),
                 new List<string> { "Passwords must have at least one non letter or digit character. Passwords must have at least one digit ('0'-'9')." }
             );
             yield return new TestCaseData(
-                "Password without special character",
+                "Password without special character", // Not stable test!
                 new RegisterModel("TestUser", "Password1", "a@a.com"),
                 new List<string> { "Passwords must have at least one non letter or digit character." }
             );
@@ -118,7 +99,7 @@ namespace SeleniumTestProject.Tests
                 new List<string> { "The Email field is not a valid e-mail address." }
             );
             yield return new TestCaseData(
-                "Existing UserName",
+                "Existing UserName", // Not stable test - there is such user in the system, but not always the error message is shown
                 new RegisterModel("Iskra123", "Password1!", "a@a.com"),
                 new List<string> { "Name Iskra123 is already taken." }
             );
@@ -132,13 +113,138 @@ namespace SeleniumTestProject.Tests
                 new RegisterModel("", "", ""),
                 new List<string> { "The UserName field is required.", "The Password field is required.", "The Email field is required." }
             );
+            yield return new TestCaseData(
+                "Missing UserName and short Password",
+                new RegisterModel("", "Pass", "a@a.com"),
+                new List<string> { "The UserName field is required.", "The Password must be at least 6 characters long." }
+            );
+            yield return new TestCaseData(
+                "Missing UserName and not valid Email",
+                new RegisterModel("", "Password1!", "a a@a.com"),
+                new List<string> { "The UserName field is required.", "The Email field is not a valid e-mail address." }
+            );
+            yield return new TestCaseData(
+                "Missing Password and short UserName",
+                new RegisterModel("Use", "", "a@a.com"),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Password field is required." }
+            );
+            yield return new TestCaseData(
+                "Missing Password and not valid Email",
+                new RegisterModel("ValidUser", "", "a a@a.com"),
+                new List<string> { "The Password field is required.", "The Email field is not a valid e-mail address." }
+            );
+            yield return new TestCaseData(
+                "Missing Email and short UserName",
+                new RegisterModel("Use", "Password1!", ""),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Email field is required." }
+            );
+            yield return new TestCaseData(
+                "Missing Email and short Password",
+                new RegisterModel("ValidUser", "Pass", ""),
+                new List<string> { "The Password must be at least 6 characters long.", "The Email field is required." }
+            );
+            yield return new TestCaseData(
+                "Too short UserName and Password",
+                new RegisterModel("Us", "Pass", "a@a.com"),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Password must be at least 6 characters long." }
+            );
+            yield return new TestCaseData(
+                "Too short UserName and Password, missing Email",
+                new RegisterModel("Us", "Pass", ""),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Password must be at least 6 characters long.", "The Email field is required." }
+            );
+            yield return new TestCaseData(
+                "Too short UserName and Password, not valid Email",
+                new RegisterModel("Us", "Pass", "a@a."),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Password must be at least 6 characters long.", "The Email field is not a valid e-mail address." }
+            );
+            yield return new TestCaseData(
+                "Missing UserName and Password, not valid Email",
+                new RegisterModel("", "", "a@a .com"),
+                new List<string> { "The UserName field is required.", "The Password field is required.", "The Email field is not a valid e-mail address." }
+            );
+            yield return new TestCaseData(
+                "Missing UserName and Email, short Password",
+                new RegisterModel("", "Pass", ""),
+                new List<string> { "The UserName field is required.", "The Password must be at least 6 characters long.", "The Email field is required." }
+            );
+            yield return new TestCaseData(
+                "Missing Password and Email, short UserName",
+                new RegisterModel("Use", "", ""),
+                new List<string> { "The UserName must be at least 6 charecters long.", "The Password field is required.", "The Email field is required." }
+            );
+            //yield return new TestCaseData(
+            //    "Missing UserName and Password, existing Email", // Error message for existing email is not shown
+            //    new RegisterModel("", "", "a@a.com"),
+            //    new List<string> { "The UserName field is required.", "The Password field is required.", "Email 'a@a.com' is already taken." }
+            //);
+            //yield return new TestCaseData(
+            //    "Missing Password, existing UserName and Email", // Only error for missing password is shown
+            //    new RegisterModel("Iskra123", "", "a@a.com"),
+            //    new List<string> { "Name Iskra123 is already taken.", "The Password field is required.", "Email 'a@a.com' is already taken." }
+            //);
         }
 
-        private static string RandomLetters(int length) 
-        { 
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; 
-            var random = new Random(); 
-            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray()); 
+        [Test]
+        [TestCaseSource(nameof(ConfirmPasswordData))]
+        public void RegisterUser_ConfirmPasswordValidation(string testedCase, RegisterModel model, List<string> errorMessages)
+        {
+            ExecuteNegativeRegistrationTest(testedCase, model, errorMessages);
+        }
+
+        private static IEnumerable<TestCaseData> ConfirmPasswordData()
+        {
+            yield return new TestCaseData(
+                "Password mismatch",
+                new RegisterModel("ValidUser", "Password1!", "user@test.com") { ConfirmPassword = "Different1!" },
+                new List<string> { "The password and confirmation password do not match." }
+            );
+            yield return new TestCaseData(
+                "Empty ConfirmPassword",
+                new RegisterModel("ValidUser", "Password1!", "user@test.com") { ConfirmPassword = "" },
+                new List<string> { "The password and confirmation password do not match." }
+            );
+            yield return new TestCaseData(
+                "Short ConfirmPassword",
+                new RegisterModel("ValidUser", "Password1!", "user@test.com") { ConfirmPassword = "Pass" },
+                new List<string> { "The password and confirmation password do not match." }
+            );
+            yield return new TestCaseData(
+                "Valid Password and ConfirmPassword",
+                new RegisterModel("Valid User", "Password1!", "user@test.com") { ConfirmPassword = "Password1!" },
+                new List<string>() // no errors expected
+            );
+        }
+
+        private void ExecuteNegativeRegistrationTest(string testedCase, RegisterModel registerModel, List<string> errorMessages)
+        {
+            RegisterPage registerPage = new RegisterPage(_driver);
+            registerPage.NavigateToRegisterPage();
+            registerPage.FillRegistrationForm(registerModel);
+
+            var actualErrors = registerPage.GetErrorMessages();
+
+            Console.WriteLine($"Running case: {testedCase}");
+            Console.WriteLine("Actual errors:");
+            foreach (var error in actualErrors)
+            {
+                Console.WriteLine($" - {error}");
+            }
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedError in errorMessages)
+                {
+                    Assert.IsTrue(actualErrors.Contains(expectedError), $"Expected error message '{expectedError}' was not found.");
+                }
+            });
+        }
+
+        private static string RandomLetters(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
 
