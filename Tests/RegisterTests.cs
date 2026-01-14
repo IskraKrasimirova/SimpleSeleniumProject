@@ -2,10 +2,10 @@
 using OpenQA.Selenium.Chrome;
 using SeleniumTestProject.Models;
 using SeleniumTestProject.Pages;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SeleniumTestProject.Tests
 {
+    [TestFixture(Category = "UI Tests")]
     public class RegisterTests
     {
         private IWebDriver _driver;
@@ -25,14 +25,14 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Register Tests")]
+        [Category("Register")]
         public void RegisterUserWithValidCredentials()
         {
             var uniqueUser = "User" + RandomLetters(6);
             var uniqueEmail = $"user{Guid.NewGuid().ToString("N").Substring(0, 8)}@test.com";
             var registerModel = new RegisterModel(uniqueUser, "Password1!", uniqueEmail);
 
-            RegisterPage registerPage = new RegisterPage(_driver);
+            var registerPage = new RegisterPage(_driver);
             registerPage.NavigateToRegisterPage();
             registerPage.FillRegistrationForm(registerModel);
 
@@ -44,7 +44,7 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Register Tests")]
+        [Category("Register")]
         [TestCaseSource(nameof(NotValidRegistrationData))]
         public void RegisterUserWithNotValidCredentials_ShouldShowErrorMessages(string testedCase, RegisterModel registerModel, List<string> errorMessages)
         {
@@ -104,7 +104,7 @@ namespace SeleniumTestProject.Tests
                 new List<string> { "Name Iskra123 is already taken." }
             );
             yield return new TestCaseData(
-                "Existing Email",
+                "Existing Email", // Not stable test!
                 new RegisterModel("ValidUser", "Password1!", "a@a.com"),
                 new List<string> { "Email 'a@a.com' is already taken." }
             );
@@ -186,6 +186,7 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
+        [Category("Register")]
         [TestCaseSource(nameof(ConfirmPasswordData))]
         public void RegisterUser_ConfirmPasswordValidation(string testedCase, RegisterModel model, List<string> errorMessages)
         {
@@ -218,7 +219,7 @@ namespace SeleniumTestProject.Tests
 
         private void ExecuteNegativeRegistrationTest(string testedCase, RegisterModel registerModel, List<string> errorMessages)
         {
-            RegisterPage registerPage = new RegisterPage(_driver);
+            var registerPage = new RegisterPage(_driver);
             registerPage.NavigateToRegisterPage();
             registerPage.FillRegistrationForm(registerModel);
 
@@ -246,7 +247,6 @@ namespace SeleniumTestProject.Tests
             var random = new Random();
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
-
 
 
         // The UserName field is required.

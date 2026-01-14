@@ -25,14 +25,12 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         [TestCaseSource(nameof(AdminLoginData))]
         public void SuccessfulLoginWithValidCredentialsAsAdmin(LoginModel loginModel)
         {
             var loginPage = new LoginPage(_driver);
-
             loginPage.NavigateToLoginPage();
-
             loginPage.UserLogin(loginModel.UserName, loginModel.Password);
 
             var dashboardPage = new DashboardPage(_driver);
@@ -57,14 +55,12 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         [TestCaseSource(nameof(CommonUserLoginData))]
         public void SuccessfulLoginWithValidCredentialsAsCommonUser(LoginModel loginModel)
         {
             var loginPage = new LoginPage(_driver);
-
             loginPage.NavigateToLoginPage();
-
             loginPage.UserLogin(loginModel.UserName, loginModel.Password);
 
             var dashboardPage = new DashboardPage(_driver);
@@ -89,14 +85,12 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         [TestCaseSource(nameof(NotValidLoginData))]
         public void UnsuccessfulLoginWithNotValidUserCredentials(string testedCase, LoginModel loginModel)
         {
             var loginPage = new LoginPage(_driver);
-
             loginPage.NavigateToLoginPage();
-
             loginPage.UserLogin(loginModel.UserName, loginModel.Password);
 
             Assert.AreEqual("Invalid login attempt.", loginPage.ErrorMessage.Text, "Error message did not match expected.");
@@ -119,7 +113,7 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         public void LoginWithEmptyUserName_ShouldShowErrorMessage()
         {
             var loginPage = new LoginPage(_driver);
@@ -130,7 +124,7 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         public void LoginWithEmptyPassword_ShouldShowErrorMessage()
         {
             var loginPage = new LoginPage(_driver);
@@ -141,7 +135,7 @@ namespace SeleniumTestProject.Tests
         }
 
         [Test]
-        [Category("Login Tests")]
+        [Category("Login")]
         public void LoginWithEmptyCredentials_ShouldShowErrorMessages()
         {
             var loginPage = new LoginPage(_driver);
